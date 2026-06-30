@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles of a Stone Heart</title>
+    <style>
+        /* Vintage Fonts & Core Variables */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --bg-base: #100d0b;
+            --text-main: #d4c2aa;
+            --text-accent: #9c8471;
+            --highlight: #b08d5b;
+            --vintage-border: rgba(74, 59, 50, 0.8);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            height: 100vh;
+            overflow: hidden; /* Disables standard body scroll */
+        }
+
+        /* Ambient Dust Motes Canvas (Fixed in background) */
+        #dust-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* YOUTUBE SHORTS STYLE CONTAINER */
+        .snap-container {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: scroll;
+            /* Native CSS Snapping - zero lag */
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hide scrollbar for a cinematic look */
+        .snap-container::-webkit-scrollbar {
+            display: none;
+        }
+        .snap-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Individual Pages */
+        .page {
+            height: 100vh;
+            width: 100vw;
+            /* Locks this section to the top of the viewport when scrolling */
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Dark Vintage Overlay for readability */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(16, 13, 11, 0.7), rgba(16, 13, 11, 0.95));
+            z-index: 1;
+        }
+
+        /* Page Backgrounds */
+        #page-0 { background-image: url('https://picsum.photos/seed/ancientcastle/1920/1080'); }
+        #page-1 { background-image: url('https://picsum.photos/seed/gonethrone/1920/1080'); }
+        #page-2 { background-image: url('https://picsum.photos/seed/gothicruin/1920/1080'); }
+        #page-3 { background-image: url('https://picsum.photos/seed/darkstatue/1920/1080'); }
+        #page-4 { background-image: url('https://picsum.photos/seed/fadingember/1920/1080'); } /* Epilogue Background */
+
+        /* Story Text Containers */
+        .story-container {
+            position: relative;
+            z-index: 2;
+            max-width: 750px;
+            text-align: center;
+            background: rgba(22, 17, 15, 0.85);
+            padding: 3.5rem;
+            border: 1px solid var(--vintage-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            border-radius: 2px;
+            margin: 0 20px;
+        }
+
+        .hero-box {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            font-weight: 400;
+            letter-spacing: 4px;
+            color: var(--highlight);
+            margin: 0 0 1.5rem 0;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            text-shadow: 2px 4px 20px rgba(0,0,0,1);
+        }
+
+        h2 {
+            font-size: 2.3rem;
+            border-bottom: 1px solid var(--vintage-border);
+            padding-bottom: 0.8rem;
+            display: inline-block;
+        }
+
+        p {
+            line-height: 1.9;
+            color: #dcd1c4;
+            text-align: justify;
+            text-align-last: center;
+            margin: 0 0 1.5rem 0;
+        }
+
+        p.quote {
+            font-size: 1.6rem;
+            font-style: italic;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .ornament {
+            font-size: 1.5rem;
+            color: var(--highlight);
+            opacity: 0.5;
+            margin-top: 1.5rem;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: -3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: var(--text-accent);
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: translate(-50%, 0); }
+            50% { opacity: 1; transform: translate(-50%, 5px); }
+            100% { opacity: 0.3; transform: translate(-50%, 0); }
+        }
+
+        /* Smooth CSS Transitions for content popping in */
+        .fade-in {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1), 
+                        transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Vintage Button for the Outro Page */
+        .return-btn {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 1px solid var(--highlight);
+            color: var(--highlight);
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            outline: none;
+        }
+
+        .return-btn:hover {
+            background: var(--highlight);
+            color: var(--bg-base);
+            box-shadow: 0 0 20px rgba(176, 141, 91, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="dust-canvas"></canvas>
+
+    <main class="snap-container" id="main-scroll">
+        
+        <section class="page" id="page-0">
+            <div class="story-container hero-box fade-in">
+                <h1>A Love in Stone</h1>
+                <p class="quote">"We carved our vows into the fortress walls, foolishly believing the stone would outlast the sorrow."</p>
+                <div class="scroll-indicator">Scroll Down ↓</div>
+            </div>
+        </section>
+
+        <section class="page" id="page-1">
+            <div class="story-container fade-in">
+                <h2>The Grand Halls</h2>
+                <p>In the golden era of our youth, the castle was alive. Tapestries of rich crimson hung from the vaulted ceilings, and the courtyards echoed with the clashing of swords and the laughter of kings. We met in the shadow of the great colonnade, two souls recognizing an ancient, aristocratic sorrow in one another's eyes. It was a romance born of chivalry, heavy with the weight of crowns we never wore.</p>
+                <p>Our love was a fortress, impenetrable and grand. We danced in the drifting dust of history, believing our passion could forge an empire that would withstand the relentless march of time. The stone was cold, but our hearts were an eternal, blazing hearth.</p>
+            </div>
+        </section>
+
+        <section class="page" id="page-2">
+            <div class="story-container fade-in">
+                <h2>The Siege of Time</h2>
+                <p>But no walls can hold back the passing of ages. The tapestries faded to moth-eaten rags, and the iron gates rusted shut. A deep melancholy settled over our grand halls. The tragedy of a love so epic is that it requires an epic world to sustain it. As the magic of our era dwindled slowly into myth, so too did the fire that bound us.</p>
+                <p>We became ghosts haunting our own corridors. I watched the golden light leave your eyes, replaced by the weary, unforgiving grey of an encroaching winter. We held on, not out of passion, but out of a desperate, agonizing loyalty to the memory of who we once were.</p>
+            </div>
+        </section>
+
+        <section class="page" id="page-3">
+            <div class="story-container fade-in">
+                <h2>Monuments of Dust</h2>
+                <p>Now, only the ruins remain. The roof has caved to the heavens, letting the moonlight bathe the broken statues we raised in our honor. Travelers pass by, admiring the dark gothic decay, entirely unaware of the catastrophic heartbreak buried beneath the rubble.</p>
+                <p>This is the cruelest truth of a grand romance: it does not disappear. It calcifies. It turns into ivy-choked ruins and melancholic legends. I remain here, bound to the stone, a solitary keeper of a history that the world has forgotten, waiting for an echo that will never return.</p>
+                <div class="ornament">✦ ⚜ ✦</div>
+            </div>
+        </section>
+
+        <section class="page" id="page-4">
+            <div class="story-container fade-in">
+                <h2>The Final Ember</h2>
+                <p>Every epic must eventually find its final punctuation. The knights have all perished, the crowns have turned to dust, and the vows carved in stone have been smoothed by a thousand years of rain.</p>
+                <p>Yet, if you listen closely to the wind whistling through these hollowed walls, you can still hear the faint melody of a dance that never truly ended. A testament that even when the fire dies, the warmth remains forever in the ashes.</p>
+                <p class="quote">"Rest now, weary traveler. The story is written."</p>
+                <div class="ornament">❧ ❦ ☙</div>
+                <button class="return-btn" onclick="document.getElementById('page-0').scrollIntoView({behavior: 'smooth'})">Return to the Beginning</button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. Lightweight Intersection Observer for Fading Text ---
+        // This watches when a page snaps into view and triggers the CSS animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible'); 
+                }
+            });
+        }, { threshold: 0.4 }); // Triggers when 40% of the text box is visible
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+
+        // --- 2. Optimized Canvas Dust Particles (Lag-Free) ---
+        const canvas = document.getElementById('dust-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, motes;
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            motes = [];
+            // Keeps particle count low for perfect scroll performance
+            for (let i = 0; i < 50; i++) {
+                motes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 2 + 0.5,
+                    speedY: (Math.random() - 0.5) * 0.2,
+                    speedX: (Math.random() - 0.5) * 0.2,
+                    opacity: Math.random() * 0.4 + 0.1
+                });
+            }
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#d4c2aa';
+            
+            for (let i = 0; i < motes.length; i++) {
+                let p = motes[i];
+                p.y += p.speedY;
+                p.x += p.speedX;
+
+                // Screen wrap-around
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+
+                ctx.globalAlpha = p.opacity;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        animateCanvas();
+    </script>
+</body>
+</html>
